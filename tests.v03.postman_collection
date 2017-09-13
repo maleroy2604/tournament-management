@@ -1,0 +1,110 @@
+{
+	"variables": [],
+	"info": {
+		"name": "tests.v03",
+		"_postman_id": "38f3a63f-d531-872a-d66a-6fc5652cefb0",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:3000/api/members",
+			"request": {
+				"url": "localhost:3000/api/members",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/members/ben",
+			"request": {
+				"url": "localhost:3000/api/members/ben",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/members",
+			"request": {
+				"url": "localhost:3000/api/members",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "pseudo",
+							"value": "xxx",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "xxx",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "profile",
+							"value": "Hi, I'm xxx!",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/members/ben",
+			"request": {
+				"url": "localhost:3000/api/members/ben",
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:3000/api/members/xxx",
+			"request": {
+				"url": "localhost:3000/api/members/xxx",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "profile",
+							"value": "New profile for xxx!",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
