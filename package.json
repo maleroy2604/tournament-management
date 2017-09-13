@@ -10,10 +10,12 @@
   "license": "ISC",
   "dependencies": {
     "core-js": "2.5.1",
-    "express": "4.15.4"
+    "express": "4.15.4",
+    "mongodb": "2.2.31"
   },
   "devDependencies": {
     "@types/express": "4.0.37",
+    "@types/mongodb": "2.2.11",
     "@types/node": "8.0.28",
     "typescript": "2.3.4"
   }
