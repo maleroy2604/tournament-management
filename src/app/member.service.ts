@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs/Rx";
 import { Http, RequestOptions } from "@angular/http";
-
-import 'rxjs/add/operator/map';
+import { SecuredHttp } from "app/securedhttp.service";
 
 export class Member {
     _id: string;
@@ -18,21 +17,18 @@ export class Member {
     }
 }
 
-const URL = '/api/members';
+const URL = '/api/members/';
 
 @Injectable()
 export class MemberService {
-    constructor(private http: Http) {
+    constructor(private http: SecuredHttp) {
     }
 
     public getAll(): Observable<Member[]> {
         return this.http.get(URL)
             .map(result => {
-                let tmp: Member[] = [];
-                for (let o of result.json())
-                    tmp.push(new Member(o));
-                return tmp;
-            })
+                return result.json().map(json => new Member(json));
+            });
     }
 
     public getOne(pseudo: string): Observable<Member> {
