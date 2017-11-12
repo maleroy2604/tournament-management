@@ -36,8 +36,11 @@ export class AuthentificationRouter {
                 // on vérifie le mot de passe
                 if (member && member['password'] === password) {
                     // si le mot de passe est correct, on génère le token et on le renvoie au client
-                    var token = jwt.sign({ pseudo: req.body.pseudo }, 'my-super-secret-key', { expiresIn: 60 });
-                    res.json({ success: true, message: 'logged in', token: token });
+                    let admin = member['admin'];
+                    var token = jwt.sign({ pseudo: req.body.pseudo, admin: admin },
+                        'my-super-secret-key',
+                        { expiresIn: 60 });
+                    res.json({ success: true, message: 'logged in', token: token, admin: admin });
                 }
                 else
                     res.json({ success: false, message: 'bad password' });
@@ -86,6 +89,17 @@ export class AuthentificationRouter {
             return res.status(403).send({
                 success: false,
                 message: 'No token provided.'
+            });
+        }
+    }
+
+    public static checkAdmin(req, res, next) {
+        if (req.decoded.admin)
+            next();
+        else {
+            return res.status(403).send({
+                success: false,
+                message: 'Require admin privilege.'
             });
         }
     }

@@ -28,4 +28,8 @@ export class AuthService {
     public get currentUser(): string {
         return sessionStorage.getItem('pseudo');
     } 
+
+    public get isAdmin(): boolean {
+        return sessionStorage.getItem('admin') === 'true';
+    } 
 }

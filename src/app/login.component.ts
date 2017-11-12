@@ -12,18 +12,6 @@ export class LoginComponent {
     public ctlPassword: FormControl;
     public message: string;
 
-    /**
-     * Le décorateur ViewChild permet de récupérer une référence vers un objet de type ElementRef
-     * qui encapsule l'élément DOM correspondant. On peut ainsi accéder au DOM et le manipuler grâce
-     * à l'attribut 'nativeElement'. Le paramètre 'pseudo' que l'on passe ici correspond au tag
-     * que l'on a associé à cet élément dans le template HTML sous la forme de #<tag>. Ici par
-     * exemple <input #pseudo id="pseudo"...>.
-     * 
-     * Dans ce cas précis-ci, on a besoin d'accéder au DOM de ce champ car on veut mettre le focus
-     * sur ce champ quand la page s'affiche. Pour cela, il faut passer par le DOM.
-     */
-    @ViewChild('pseudo') pseudo: ElementRef;
-
     constructor(
         public authService: AuthService, // pour pouvoir faire le login
         public router: Router,           // pour rediriger vers la page d'accueil en cas de login 
@@ -46,23 +34,6 @@ export class LoginComponent {
             pseudo: this.ctlPseudo,
             password: this.ctlPassword
         });
-    }
-
-    /**
-     * Event standard d'angular qui nous donne la main juste après l'affichage du composant.
-     * C'est le bon endroit pour mettre le focus dans le champ 'pseudo'.
-     */
-    ngAfterViewInit() {
-        /**
-         * le focus est un peu tricky : pour que ça marche, il faut absolument faire l'appel
-         * à la méthode focus() de l'élément de manière asynchrone. Voilà la raison du setTimeout().
-         */
-        setTimeout(_ => { this.setFocus(); })
-    }
-
-    setFocus() {
-        if (this.pseudo)
-            this.pseudo.nativeElement.focus();
     }
 
     setMessage() {
@@ -94,6 +65,5 @@ export class LoginComponent {
         this.authService.logout();
         this.setMessage();
         this.frm.reset();   // réinitialise le formulaire avec les valeurs par défaut
-        setTimeout(_ => { this.setFocus(); })
     }
 }

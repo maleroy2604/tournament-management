@@ -1,0 +1,22 @@
+<mymodal title="{{(frm.value._id ? 'Edit existing' : 'Add a new') + ' member'}}" 
+    (shown)="ouvrir()"     
+    (closed)="fermer()">
+    <div body>
+        <div class="row">
+            <div class="col-sm-12">
+                <form id="frm" class="form-horizontal" [formGroup]="frm" novalidate>
+                    <my-input #pseudo label="Pseudo" formControlName="pseudo" [readonly]="frm.value._id"></my-input>
+                    <my-input label="Password" type="password" formControlName="password"></my-input>
+                    <my-input label="Profile" formControlName="profile"></my-input>
+                    <my-input label="Birth Date" type="date" formControlName="birthdate"></my-input>
+                    <my-input label="Has Administrator Role" type="checkbox" formControlName="admin"></my-input>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div footer>
+        <button type="submit" form="frm" class="btn btn-default" [disabled]="frm.pristine || frm.invalid || frm.pending"
+            (click)="update()">{{frm.value._id ? 'Update' : 'Add'}}</button>
+        <button type="reset" class="btn btn-default" (click)="cancel()">Cancel</button>
+    </div>
+</mymodal>

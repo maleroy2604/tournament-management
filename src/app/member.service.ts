@@ -8,12 +8,17 @@ export class Member {
     pseudo: string;
     password: string;
     profile: string;
+    birthdate: string;
+    admin: boolean;
 
     constructor(data) {
         this._id = data._id;
         this.pseudo = data.pseudo;
         this.password = data.password;
         this.profile = data.profile;
+        this.birthdate = data.birthdate &&
+            data.birthdate.length > 10 ? data.birthdate.substring(0, 10) : data.birthdate;
+        this.admin = data.admin;
     }
 }
 
@@ -22,6 +27,13 @@ const URL = '/api/members/';
 @Injectable()
 export class MemberService {
     constructor(private http: SecuredHttp) {
+    }
+
+    public getCount(): Observable<number> {
+        return this.http.get(URL + 'count')
+            .map(result => {
+                return result.json();
+            })
     }
 
     public getAll(): Observable<Member[]> {

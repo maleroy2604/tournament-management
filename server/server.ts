@@ -73,6 +73,15 @@ export class Server {
                 ]);
             }
         });
+        col.count({ pseudo: 'admin' }).then(count => {
+            if (count === 0) {
+                console.log("Creating admin account...");
+                col.insertOne({
+                    pseudo: "admin", password: "admin",
+                    profile: "I'm the administrator of the site!", admin: true
+                });
+            }
+        });
     }
 
     // démarrage du serveur express
