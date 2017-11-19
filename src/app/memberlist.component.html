@@ -11,10 +11,17 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <mytable [columnDefs]="columnDefs" [getDataService]="getDataService" [addService]="addService" [deleteService]="deleteService"
-            [updateService]="updateService" filterPlaceHolder="Filter Members" [editComponent]="editMember"
-            addCaption="Add New Member" [pageSize]="5"></mytable>
+        <mytable #members [columnDefs]="columnDefs" [getDataService]="getDataService" [addService]="addService" [deleteService]="deleteService"
+            [updateService]="updateService" filterPlaceHolder="Filter Members" [editComponent]="editMember" addCaption="Add New Member"
+            [pageSize]="5" (selectedItemChanged)="selectedItemChanged($event)" [cancellable]="false" [confirmDelete]="true"></mytable>
     </div>
-
+</div>
+<div class="row" *ngIf="selectedMember">
+    <div class="col-sm-12">
+        <mytable #addresses [columnDefs]="addressColumnDefs" [getDataService]="getAddressDataService" [addService]="addAddressService" [deleteService]="deleteAddressService"
+            [updateService]="updateAddressService" filterPlaceHolder="Filter Addresses" [editComponent]="editAddress" addCaption="Add New Address"
+            [pageSize]="3" [cancellable]="true" [confirmDelete]="false"></mytable>
+    </div>
 </div>
 <edit-member #editMember></edit-member>
+<edit-address #editAddress></edit-address>

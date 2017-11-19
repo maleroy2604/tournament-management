@@ -8,7 +8,7 @@ import { ValidationService } from "app/validation.service";
     template: `
         <div class="form-group" [ngClass]="outerControl.pristine ? null : (outerControl.dirty && outerControl.invalid ? 'has-error' : 'has-success')">
             <ng-container *ngIf="type=='checkbox'; else not_checkbox">
-                <div class="col-sm-offset-2 col-sm-10">
+                <div [ngClass]="'col-sm-offset-' + labelWidth + ' col-sm-' + inputWidth">
                     <div class="checkbox">
                         <label class="control-label">
                             <input #ref [type]="type" [checked]="value" (change)="value=!value" id="{{id}}" class="checkbox" [readonly]="readonly">
@@ -18,13 +18,13 @@ import { ValidationService } from "app/validation.service";
                 </div>
             </ng-container>
             <ng-template #not_checkbox>
-                <div class="col-sm-2">
-                    <label class="control-label" for="{{id}}">{{label}}</label>
+                <div [ngClass]="'col-sm-' + labelWidth">
+                    <label class="control-label" for="{{id}}" style="text-align:left">{{label}}</label>
                 </div>
-                <div class="col-sm-10">
+                <div [ngClass]="'col-sm-' + inputWidth">
                     <input #ref [type]="type" [(ngModel)]="value" id="{{id}}" class="form-control" [readonly]="readonly">
                 </div>
-                <div class="col-sm-offset-2 col-sm-10 help-block" *ngIf="outerControl.dirty && outerControl.invalid">
+                <div [ngClass]="'col-sm-offset-' + labelWidth + ' col-sm-' + inputWidth + ' help-block'" *ngIf="outerControl.dirty && outerControl.invalid">
                     <div *ngFor="let err of errorMessages">
                         <small>{{err}}</small>
                     </div>
@@ -40,6 +40,9 @@ import { ValidationService } from "app/validation.service";
 export class MyInputComponent extends MyControlComponent {
     @ViewChild('ref') ref: ElementRef;
     @Input() type: 'text' | 'password' | 'date' = 'text';
+    @Input() labelWidth: number = 2;
+
+    private inputWidth: number = 10;
 
     constructor(messageSvc: ValidationService, elem: ElementRef) {
         super(messageSvc, elem);
@@ -51,6 +54,10 @@ export class MyInputComponent extends MyControlComponent {
             e.focus();
             e.select();
         }
+    }
+
+    public ngOnInit() {
+        this.inputWidth = 12 - this.labelWidth;
     }
 
     public ngAfterViewInit() {

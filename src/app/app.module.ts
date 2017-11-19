@@ -22,6 +22,9 @@ import { MyTableComponent } from "app/mytable.component";
 import { MyInputComponent } from "app/myinput.component";
 import { ValidationService } from "app/validation.service";
 import { MyModalComponent } from "app/mymodal.component";
+import { SignUpComponent } from 'app/signup.component';
+import { EditAddressComponent } from 'app/edit-address.component';
+import { ConfirmDelete } from "app/confirm-delete.component";
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     return new AuthHttp(
@@ -38,6 +41,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         AppComponent,
         MemberListComponent,
         LoginComponent,
+        SignUpComponent,
         LogoutComponent,
         HomeComponent,
         UnknownComponent,
@@ -47,6 +51,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         MyTableComponent,
         MyInputComponent,
         MyModalComponent,
+        EditAddressComponent,
+        ConfirmDelete
     ],
     imports: [
         HttpModule,
@@ -56,6 +62,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'login', component: LoginComponent },
+            { path: 'signup', component: SignUpComponent },
             {
                 path: '',
                 canActivate: [AuthGuard],

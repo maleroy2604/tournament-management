@@ -1,5 +1,6 @@
 import { Observable } from "rxjs/Observable";
 import * as moment from 'moment';
+import * as _ from 'lodash';
 
 export type SortDirection = 'asc' | 'desc' | '';
 
@@ -58,6 +59,7 @@ export class MyDataSource<T> {
     }
 
     private refresh() {
+        if (!this._data) return;
         this._dataView = this._data.slice();
         this.sortData();
         this.filterData();
@@ -113,12 +115,22 @@ export class MyDataSource<T> {
         this.refresh();
     }
 
-    update(obj: T) {
-        this._data[this._data.findIndex(mm => mm[this.key] === obj[this.key])] = obj;
+    update(obj: T, old: T) {
+        let i = this._data.findIndex(mm =>  _.isEqual(mm, old));
+        this._data[i] = obj;
         this.refresh();
     }
 
     public get length() {
         return this._data.length;
+    }
+
+    public getItem(i: number) {
+        if (i < 0 || i > this._dataView.length) return null;
+        return this._dataView[i];
+    }
+
+    public indexOf(obj: object) {
+        return _.indexOf(this._dataView, obj)
     }
 }

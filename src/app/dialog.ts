@@ -7,5 +7,5 @@ export interface DialogResult {
 }
 
 export interface IDialog {
-    show(obj: any): Subject<DialogResult>
+    show(obj?: any): Subject<DialogResult>
 }

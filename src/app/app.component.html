@@ -11,7 +11,8 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ng-container *ngIf="!authService.isLoggedIn">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a [routerLink]="['/login']"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    <li><a [routerLink]="['/login']"><span class="glyphicon glyphicon-log-in"></span> Log In</a></li>
+                    <li><a [routerLink]="['/signup']"><span class="glyphicon glyphicon-sign-in"></span> Sign Up</a></li>
                 </ul>
             </ng-container>
             <ng-container *ngIf="authService.isLoggedIn">

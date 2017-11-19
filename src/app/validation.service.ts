@@ -9,7 +9,8 @@ export class ValidationService {
             maxlength: `Maximum length is ${validatorValue.requiredLength}`,
             forbiddenValue: 'This value is forbidden',
             pseudoUsed: 'This pseudo is not available',
-            passwordEqualProfile: 'Your password cannot be equal to your profile string'
+            passwordEqualProfile: 'Your password cannot be equal to your profile string',
+            passwordNotConfirmed: 'The two passwords must be the same'
         };
         return config.hasOwnProperty(validatorName) ? config[validatorName] : '[' + validatorName + ']';
     }

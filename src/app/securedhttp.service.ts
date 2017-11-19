@@ -105,7 +105,7 @@ export class SecuredHttp {
         // Récupère le token depuis le sessionStorage
         var token = sessionStorage.getItem('id_token');
         // Si le token n'existe pas ou s'il est expiré ...
-        if (!token || this.jwt.isTokenExpired(token)) {
+        if (!token || token == 'undefined' || this.jwt.isTokenExpired(token)) {
             var headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
             var options = new RequestOptions({ headers: headers });
             // on demande un nouveau token

@@ -1,9 +1,10 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { DomSanitizer } from "@angular/platform-browser";
 import { SnackBarComponent } from "app/snackbar.component";
 import { Observable } from "rxjs/Observable";
 import { MyDataSource, SortDirection } from "app/mydatasource";
 import { IDialog, DialogResult } from "app/dialog";
+import { ConfirmDelete } from "app/confirm-delete.component";
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
@@ -38,10 +39,11 @@ export interface ColumnDef {
 export class MyTableComponent implements OnInit, AfterViewInit {
     dataSource: MyDataSource<object> = new MyDataSource([], '', []);
     filteredColumns: string[] = [];
-    key: string;
+    key: string = '_id';
     sort: string;
     direction: string;
     errors: string[] = [];
+    _selectedIndex: number = -1;
 
     @Input() columnDefs: ColumnDef[] = [];
     @Input() getDataService: () => Observable<any[]>;
@@ -52,11 +54,28 @@ export class MyTableComponent implements OnInit, AfterViewInit {
     @Input() editComponent: IDialog;
     @Input() addCaption: string = 'Add New Item';
     @Input() pageSize: number = 0;
+    @Input() cancellable: boolean = false;
+    @Input() confirmDelete: boolean = true;
+    @Input() cancelTimeout: number = 5000;
+    @Input() readOnly = false;
+    @Output() selectedItemChanged: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild('snackbar') snackbar: SnackBarComponent;
     @ViewChild('filter') filter: ElementRef;
+    @ViewChild('confirmdelete') confirm: ConfirmDelete;
 
     constructor(private domSanitizer: DomSanitizer) { }
+
+    refresh() {
+        if (!this.getDataService) return;
+        this.getDataService().subscribe(objects => {
+            this.dataSource = new MyDataSource(objects, this.key, this.filteredColumns);
+            this.dataSource.sort = this.key;
+            this.dataSource.pageSize = this.pageSize;
+        }, err => {
+            this.snackbar.alert('ERROR: ' + err);
+        });
+    }
 
     ngOnInit() {
         this.columnDefs.forEach(c => {
@@ -73,16 +92,12 @@ export class MyTableComponent implements OnInit, AfterViewInit {
         if (!this.key)
             this.errors.push("You must define one column as the key (identifying column)");
 
-        this.getDataService().subscribe(objects => {
-            this.dataSource = new MyDataSource(objects, this.key, this.filteredColumns);
-            this.dataSource.sort = this.key;
-            this.dataSource.pageSize = this.pageSize;
-        }, err => {
-            this.snackbar.alert('ERROR: ' + err);
-        });
+        this.refresh();
     }
 
     ngAfterViewInit(): void {
+        this.refresh();
+
         // Permet de ne modifier le filtre de la source de données quand quand l'utilisateur a fini de taper
         if (this.filter)
             Observable.fromEvent(this.filter.nativeElement, 'keyup')
@@ -91,11 +106,13 @@ export class MyTableComponent implements OnInit, AfterViewInit {
                 .subscribe(() => {
                     if (this.dataSource)
                         this.dataSource.filter = this.filter.nativeElement.value;
+                    this.selectedIndex = -1;
                 });
     }
 
     headerClicked(c: ColumnDef) {
         this.dataSource.sort = c.name;
+        this.selectedIndex = -1;
     }
 
     getHeaderStyle(c: ColumnDef) {
@@ -126,6 +143,7 @@ export class MyTableComponent implements OnInit, AfterViewInit {
 
     pageClicked(i: number) {
         this.dataSource.pageIndex = i;
+        this.selectedIndex = -1;
     }
 
     getValue(row, col: ColumnDef) {
@@ -135,54 +153,110 @@ export class MyTableComponent implements OnInit, AfterViewInit {
         return val;
     }
 
-    public add(obj: object, cancellable = true) {
-        this.dataSource.add(obj);
+    private _add(obj: object) {
         this.addService(obj).subscribe(member => {
-            this.dataSource.update(member);
-            if (cancellable) {
-                this.snackbar.show(`Member '${obj[this.key]}' successfully added`, 10000, () => {
-                    this.delete(obj, false);
-                });
-            }
+            this.dataSource.update(member, obj);
         }, err => {
+            console.log(err)
             this.snackbar.alert('ERROR: ' + err);
         });
     }
 
-    public delete(obj: object, cancellable = true) {
-        this.dataSource.delete(obj);
+    public add(obj: object) {
+        this.dataSource.add(obj);
+        this.selectedIndex = -1;
+        if (this.cancellable) {
+            this.snackbar.show(`Record successfully added`, this.cancelTimeout,
+                () => {
+                    this.dataSource.delete(obj);
+                },
+                () => {
+                    this._add(obj);
+                });
+        }
+        else
+            this._add(obj);
+    }
+
+    private _delete(obj: object) {
         this.deleteService(obj).subscribe(result => {
-            if (cancellable) {
-                this.snackbar.show(`Member '${obj[this.key]}' successfully deleted`, 10000, () => {
-                    this.add(obj, false);
-                });
-            }
         }, err => {
+            console.log(err)
             this.snackbar.alert('ERROR: ' + err);
         });
     }
 
-    public update(updated: object, old: object, cancellable = true) {
-        this.dataSource.update(updated);
+    public delete(obj: object) {
+        const delAction = () => {
+            this.dataSource.delete(obj);
+            this.selectedIndex = -1;
+            if (this.cancellable) {
+                this.snackbar.show(`Record successfully deleted`, this.cancelTimeout,
+                    () => this.dataSource.add(obj),
+                    () => this._delete(obj)
+                );
+            }
+            else
+                this._delete(obj);
+        }
+        if (this.confirmDelete)
+            this.confirm.show().subscribe(res => {
+                if (res.action === 'cancel') return;
+                delAction();
+            });
+        else
+            delAction();
+    }
+
+    private _update(updated: object): void {
         this.updateService(updated).subscribe(result => {
-            if (cancellable) {
-                this.snackbar.show(`Member '${updated[this.key]}' successfully updated`, 10000, () => {
-                    this.update(old, null, false);
-                });
-            }
         }, err => {
+            console.log(err)
             this.snackbar.alert('ERROR: ' + err);
         });
     }
 
-    public edit(obj: object = {}, cancellable = true) {
+    public update(updated: object, old: object) {
+        this.dataSource.update(updated, old);
+        if (this.cancellable) {
+            this.snackbar.show(`Record successfully updated`, this.cancelTimeout,
+                () => {
+                    this.dataSource.update(old, updated);
+                },
+                () => {
+                    this._update(updated);
+                });
+        }
+        else
+            this._update(updated);
+    }
+
+    public edit(obj: object = {}) {
         this.editComponent.show(obj).subscribe(res => {
             if (res.action === 'cancel') return;
-            let updated = res.data as any;
+            let updated = _.merge({}, obj, res.data);
             if (updated._id)
                 this.update(updated, obj);
             else
                 this.add(updated);
         });
+    }
+
+    rowClicked(i: number) {
+        this.selectedIndex = i;
+    }
+
+    get selectedIndex() {
+        return this._selectedIndex;
+    }
+
+    set selectedIndex(value: number) {
+        this._selectedIndex = value;
+        if (this.selectedItemChanged)
+            this.selectedItemChanged.emit(this.selectedItem);
+    }
+
+    get selectedItem() {
+        return this.dataSource.getItem(this._selectedIndex);
     }
 }

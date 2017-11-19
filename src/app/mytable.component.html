@@ -9,17 +9,21 @@
     </div>
     <div class="row">
         <div class="col-sm-12">
+            <confirm-delete #confirmdelete></confirm-delete>
             <table class="table">
                 <thead>
                     <tr>
                         <ng-container *ngFor="let c of columnDefs">
-                            <th [style]="getHeaderStyle(c)" (click)="headerClicked(c)">{{c.header}} <i [class]="getSortClass(c)"></i></th>
+                            <th [style]="getHeaderStyle(c)" (click)="headerClicked(c)">{{c.header}}
+                                <i [class]="getSortClass(c)"></i>
+                            </th>
                         </ng-container>
-                        <th class="mytable-col-center" style="width: 0.001%">Actions</th>
+                        <th *ngIf="!readOnly" class="mytable-col-center" style="width: 0.001%">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let row of dataSource.data">
+                    <tr *ngFor="let row of dataSource.data; let i=index" class="clickable-row" [ngClass]="i == selectedIndex ? 'active' : ''"
+                        (click)="rowClicked(i)">
                         <ng-container *ngFor="let c of columnDefs">
                             <td [style]="getCellStyle(c)">
                                 <ng-container [ngSwitch]="c.type">
@@ -28,13 +32,13 @@
                                 </ng-container>
                             </td>
                         </ng-container>
-                        <td style="text-align: center">
+                        <td *ngIf="!readOnly" style="text-align: center">
                             <button type="button" class="btn btn-xs" (click)="edit(row)">
-                        <span class="glyphicon glyphicon-edit"></span>
-                    </button>
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </button>
                             <button type="button" class="btn btn-xs" (click)="delete(row)">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </button>
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
                         </td>
                     </tr>
                 </tbody>
@@ -42,10 +46,10 @@
                     <tr>
                         <td [attr.colspan]="columnDefs.length+1" style="padding-top: 20px">
                             <div class="row">
-                                <div class="col-sm-6">
+                                <div class="col-sm-6" *ngIf="!readOnly">
                                     <button class="btn btn-default" type="button" (click)="edit()">{{addCaption}}</button>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-6 col-sm-offset-6">
                                     <ul class="pagination pull-right" style="margin:0" *ngIf="dataSource.numPages > 1">
                                         <li *ngFor="let i of getPages()" [class]="i === dataSource.pageIndex ? 'active' : ''">
                                             <span style="cursor: pointer" class="btn-default" (click)="pageClicked(i)">{{i+1}}</span>

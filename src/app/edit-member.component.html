@@ -1,6 +1,4 @@
-<mymodal title="{{(frm.value._id ? 'Edit existing' : 'Add a new') + ' member'}}" 
-    (shown)="ouvrir()"     
-    (closed)="fermer()">
+<mymodal title="{{(frm.value._id ? 'Edit existing' : 'Add a new') + ' member'}}">
     <div body>
         <div class="row">
             <div class="col-sm-12">
@@ -13,10 +11,22 @@
                 </form>
             </div>
         </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Addresses:</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <mytable #address [columnDefs]="columnDefs" [getDataService]="getDataService" [addService]="addService" [deleteService]="deleteService"
+                    [updateService]="updateService" filterPlaceHolder="Filter Addresses" [editComponent]="editAddress" addCaption="Add New Address"
+                    [pageSize]="3" readOnly="true">
+                </mytable>
+            </div>
+        </div>
     </div>
     <div footer>
-        <button type="submit" form="frm" class="btn btn-default" [disabled]="frm.pristine || frm.invalid || frm.pending"
-            (click)="update()">{{frm.value._id ? 'Update' : 'Add'}}</button>
+        <button type="submit" form="frm" class="btn btn-default" [disabled]="frm.pristine || frm.invalid || frm.pending" (click)="update()">{{frm.value._id ? 'Update' : 'Add'}}</button>
         <button type="reset" class="btn btn-default" (click)="cancel()">Cancel</button>
     </div>
 </mymodal>

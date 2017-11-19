@@ -3,12 +3,27 @@ import { Observable } from "rxjs/Rx";
 import { Http, RequestOptions } from "@angular/http";
 import { SecuredHttp } from "app/securedhttp.service";
 
+export class Address {
+    _id: string;
+    street_addr: string;
+    postal_code: string;
+    localization: string;
+
+    constructor(data) {
+        this._id = data._id;
+        this.street_addr = data.street_addr;
+        this.postal_code = data.postal_code;
+        this.localization = data.localization;
+    }
+}
+
 export class Member {
     _id: string;
     pseudo: string;
     password: string;
     profile: string;
     birthdate: string;
+    address: Address[];
     admin: boolean;
 
     constructor(data) {
@@ -18,6 +33,7 @@ export class Member {
         this.profile = data.profile;
         this.birthdate = data.birthdate &&
             data.birthdate.length > 10 ? data.birthdate.substring(0, 10) : data.birthdate;
+        this.address = data.addresses;
         this.admin = data.admin;
     }
 }
@@ -52,7 +68,6 @@ export class MemberService {
     }
 
     public update(m: Member): Observable<boolean> {
-        console.log(m);
         return this.http.put(URL + m.pseudo, m).map(res => true);
     }
 
@@ -62,5 +77,17 @@ export class MemberService {
 
     public add(m: Member): Observable<Member> {
         return this.http.post(URL, m).map(res => new Member(res.json()));
+    }
+
+    public addAddress(m: Member, a: Address) {
+        return this.http.post(URL + 'address/' + m.pseudo, a).map(res => new Address(res.json()));
+    }
+
+    public deleteAddress(m: Member, a: Address) {
+        return this.http.delete(URL + 'address/' + m.pseudo + '/' + a._id).map(res => true);
+    }
+
+    public updateAddress(m: Member, a: Address) {
+        return this.http.put(URL + 'address/' + a._id, a).map(res => true);
     }
 }

@@ -3,9 +3,10 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as mongoose from 'mongoose';
 import * as jwt from 'jsonwebtoken';
-import Member from './models/member';
+import { Member, Address } from './models/member';
 import { MembersRouter } from './routes/members.router';
 import { AuthentificationRouter } from "./routes/authentication.router";
+import { MembersCommonRouter } from './routes/members-common.router';
 
 const MONGO_URL = 'mongodb://127.0.0.1/msn';
 
@@ -29,6 +30,7 @@ export class Server {
     // initialise les routes
     private routes() {
         this.express.use('/api/token', new AuthentificationRouter().router);
+        this.express.use('/api/members-common', new MembersCommonRouter().router);
         this.express.use(AuthentificationRouter.checkAuthorization);    // à partir d'ici il faut être authentifié
         this.express.use('/api/members', new MembersRouter().router);
     }
@@ -60,26 +62,33 @@ export class Server {
     }
 
     private initData() {
-        let col = mongoose.connection.collections['members'];
-        col.count({}).then(count => {
+        Member.count({}).then(count => {
             if (count === 0) {
                 console.log("Initializing data...");
-                col.insertMany([
-                    { pseudo: "test", password: "test", profile: "Hi, I'm test!" },
-                    { pseudo: "ben", password: "ben", profile: "Hi, I'm ben!" },
-                    { pseudo: "bruno", password: "bruno", profile: "Hi, I'm bruno!" },
-                    { pseudo: "boris", password: "boris", profile: "Hi, I'm boris!" },
-                    { pseudo: "alain", password: "alain", profile: "Hi, I'm alain!" }
-                ]);
+                let addr1 = new Address({ "street_addr": "rue bazar 12", "postal_code": "1000", "localization": "Bxl" });
+                let addr2 = new Address({ "street_addr": "rue machin 5", "postal_code": "1200", "localization": "Bxl" });
+                let bruno = new Member({ pseudo: "bruno", password: "bruno", profile: "Hi, I'm bruno!", addresses: [addr1, addr2] });
+                addr1.member = bruno;
+                addr2.member = bruno;
+                Address.insertMany([addr1, addr2]).then(_ => {
+                    Member.insertMany([
+                        { pseudo: "test", password: "test", profile: "Hi, I'm test!" },
+                        { pseudo: "ben", password: "ben", profile: "Hi, I'm ben!" },
+                        bruno,
+                        { pseudo: "boris", password: "boris", profile: "Hi, I'm boris!" },
+                        { pseudo: "alain", password: "alain", profile: "Hi, I'm alain!" }
+                    ]);
+                })
             }
         });
-        col.count({ pseudo: 'admin' }).then(count => {
+        Member.count({ pseudo: 'admin' }).then(count => {
             if (count === 0) {
                 console.log("Creating admin account...");
-                col.insertOne({
+                let m = new Member({
                     pseudo: "admin", password: "admin",
                     profile: "I'm the administrator of the site!", admin: true
                 });
+                m.save();
             }
         });
     }
